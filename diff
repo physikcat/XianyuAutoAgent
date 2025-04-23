@@ -1,0 +1,21 @@
+--- a/XianyuAgent.py
++++ b/XianyuAgent.py
+@@ -10,7 +10,7 @@ class XianyuReplyBot:
+         # 初始化OpenAI客户端
+         self.client = OpenAI(
+             api_key=os.getenv("OPENAI_API_KEY"),
+-            base_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
++            base_url="https://api.deepseek.com"
+         )
+         self._init_system_prompts()
+         self._init_agents()
+@@ -213,7 +213,7 @@ class BaseAgent:
+     def _call_llm(self, messages: List[Dict], temperature: float = 0.4) -> str:
+         """调用大模型"""
+         response = self.client.chat.completions.create(
+-            model="qwen-max",
++            model="deepseek-chat",
+             messages=messages,
+             temperature=temperature,
+             max_tokens=500,
+             
