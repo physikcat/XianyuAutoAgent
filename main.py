@@ -4,10 +4,12 @@ import asyncio
 import time
 import os
 import websockets
+from driver_holder import DriverHolder
+driver = DriverHolder() 
+
 from loguru import logger
 from dotenv import load_dotenv
 from XianyuApis import XianyuApis
-
 
 from utils.xianyu_utils import generate_mid, generate_uuid, trans_cookies, generate_device_id, decrypt
 from XianyuAgent import XianyuReplyBot
@@ -421,7 +423,7 @@ class XianyuLive:
 if __name__ == '__main__':
     #加载环境变量 cookie
     load_dotenv()
-    cookies_str = os.getenv("COOKIES_STR")
+    cookies_str = driver.get_xianyu_cookie()
     bot = XianyuReplyBot()
     xianyuLive = XianyuLive(cookies_str)
     # 常驻进程

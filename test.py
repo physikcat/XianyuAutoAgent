@@ -1,3 +1,5 @@
+
+
 from selenium import webdriver
 from selenium.webdriver.edge.service import Service
 from webdriver_manager.microsoft import EdgeChromiumDriverManager
@@ -5,6 +7,21 @@ from selenium.webdriver.edge.options import Options
 import json
 import os
 import time
+
+import base64
+# import json
+import asyncio
+# import time
+# import os
+import websockets
+# # from driver_holder import DriverHolder 
+# from loguru import logger
+# # from dotenv import load_dotenv
+from XianyuApis import XianyuApis
+
+# from utils.xianyu_utils import generate_mid, generate_uuid, trans_cookies, generate_device_id, decrypt
+# from XianyuAgent import XianyuReplyBot
+# from context_manager import ChatContextManager
 
 # 配置镜像源加速下载
 os.environ["WDM_EDGEDRIVER_URL"] = "https://npm.taobao.org/mirrors/edgedriver"
@@ -62,6 +79,8 @@ def capture_xianyu_cookie():
         cookies = driver.get_cookies()
         with open('xianyu_cookies.json', 'w') as f:
             json.dump(cookies, f, indent=2)
+        with open('xianyu_cookies.txt', 'w') as f:
+            f.write(cookie_str)
         print(f"成功保存{len(cookies)}个Cookie")
         
         return cookies
@@ -72,10 +91,10 @@ def capture_xianyu_cookie():
         input("按回车关闭浏览器...")
         raise
     finally:
+        input("按回车关闭浏览器...")
         driver.quit()
 
 if __name__ == "__main__":
     captured_cookies = capture_xianyu_cookie()
     print("获取到的Cookie示例：")
     print(json.dumps(captured_cookies[:2], indent=2)) 
-    input("终止？")
