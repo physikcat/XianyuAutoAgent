@@ -18,7 +18,8 @@ from context_manager import ChatContextManager
 
 class XianyuLive:
     def __init__(self, driver):
-        cookies_str = driver.get_xianyu_cookie() 
+        cookies_str = driver.get_xianyu_cookie()
+        self.driver = driver 
         self.xianyu = XianyuApis()
         self.base_url = 'wss://wss-goofish.dingtalk.com/'
         self.cookies_str = cookies_str

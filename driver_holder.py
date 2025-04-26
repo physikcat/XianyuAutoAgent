@@ -41,7 +41,7 @@ class DriverHolder:
             print("已加载历史Cookie，尝试保持会话...")
         
         # 访问目标页面
-        self.driver.get('https://www.goofish.com/')
+        self.driver.get('https://www.goofish.com/login')
         print("当前页面标题:", self.driver.title)
 
         # 会话状态检查
