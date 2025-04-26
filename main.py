@@ -11,7 +11,7 @@ from loguru import logger
 from dotenv import load_dotenv
 from XianyuApis import XianyuApis
 
-from utils.xianyu_utils import generate_mid, generate_uuid, trans_cookies, generate_device_id, decrypt
+from utils.xianyu_utils import generate_mid, generate_uuid, trans_cookies, generate_device_id, decrypt 
 from XianyuAgent import XianyuReplyBot
 from context_manager import ChatContextManager
 
@@ -79,7 +79,52 @@ class XianyuLive:
                 }
             ]
         }
-        await ws.send(json.dumps(msg))
+
+        await ws.send(json.dumps(msg)) 
+
+        # text = {
+        #     "contentType": 2,
+        #     "image":{"pics":[{"height":804,"type":0,"url":"https://img.alicdn.com/imgextra/i2/1574452518/O1CN0147UFuH1UTILK9CUa8_!!1574452518-0-xy_chat.jpg","width":1080}]} 
+        # }
+        # text_base64 = str(base64.b64encode(json.dumps(text).encode('utf-8')), 'utf-8')
+        # msg = {
+        #     "lwp": "/r/MessageSend/sendByReceiverScope",
+        #     "headers": {
+        #         "mid": generate_mid()
+        #     },
+        #     "body": [
+        #         {
+        #             "uuid": generate_uuid(),
+        #             "cid": f"{cid}@goofish",
+        #             "conversationType": 1,
+        #             "content": {
+        #                 "contentType": 101,
+        #                 "custom": {
+        #                     "type": 1,
+        #                     "data": text_base64
+        #                 }
+        #             },
+        #             "redPointPolicy": 0,
+        #             "extension": {
+        #                 "extJson": "{}"
+        #             },
+        #             "ctx": {
+        #                 "appVersion": "1.0",
+        #                 "platform": "web"
+        #             },
+        #             "mtags": {},
+        #             "msgReadStatusSetting": 1
+        #         },
+        #         {
+        #             "actualReceivers": [
+        #                 f"{toid}@goofish",
+        #                 f"{self.myid}@goofish"
+        #             ]
+        #         }
+        #     ]
+        # }
+        # print(msg)
+        # await ws.send(json.dumps(msg)) 
 
     async def init(self, ws):
         token = self.xianyu.get_token(self.cookies, self.device_id)['data']['accessToken']
@@ -108,7 +153,7 @@ class XianyuLive:
     
     async def update_cookie(self): 
         logger.info('更新cookie ... ') 
-        cookies_str = self.driver.update_cookie() 
+        cookies_str = await self.driver.update_cookie() 
         self.cookies_str = cookies_str
         self.cookies = trans_cookies(cookies_str)
         self.myid = self.cookies['unb']
@@ -122,7 +167,7 @@ class XianyuLive:
             token_response = self.xianyu.get_token(self.cookies, self.device_id)
             if token_response.get('ret') and token_response['ret'][0] != "SUCCESS::调用成功":
                 logger.error(f"Cookie已过期: {token_response}")
-                self.update_cookie()
+                await self.update_cookie()
                 return False
             return True
         except Exception as e:
@@ -275,8 +320,9 @@ class XianyuLive:
                 return
                 
             item_info = self.xianyu.get_item_info(self.cookies, item_id)['data']['itemDO']
-            print(item_info)
-            item_description = f"{item_info['desc']};当前商品售卖价格为:{str(item_info['soldPrice'])}"
+            
+            cur_time = time.strftime("%Y-%m-%d %H:%M", time.localtime()) 
+            item_description = f"{item_info['desc']};当前商品售卖价格为:{str(item_info['soldPrice'])};当前时间为 {cur_time}" 
             
             logger.info(f"user: {send_user_name}, 发送消息: {send_message}")
             
@@ -367,10 +413,10 @@ class XianyuLive:
 
     async def main(self):
         while True:
-            if not self.check_cookie_valid(): 
+            is_valid = await self.check_cookie_valid()  
+            if not is_valid: 
                 # 更新cookie  
-                self.update_cookie() 
-                await asyncio.sleep(15)  
+                await self.update_cookie() 
 
             try:
                 headers = {

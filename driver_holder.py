@@ -55,7 +55,7 @@ class DriverHolder:
             if "login" in self.driver.current_url:
                 raise Exception("登录状态未生效，请检查登录操作") 
         
-        self.driver.get('https://www.goofish.com/im?spm=a21ybx.home.sidebar.1.4c053da6EEIHQx')  
+        self.driver.get('https://www.goofish.com/im')  
         cookies = self.driver.get_cookies()
         cookie_str = "; ".join([f"{c['name']}={c['value']}" for c in cookies])
         # 获取并保存新Cookie
