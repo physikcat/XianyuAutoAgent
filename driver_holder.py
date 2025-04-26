@@ -43,7 +43,7 @@ class DriverHolder:
         # 访问目标页面
         self.driver.get('https://www.goofish.com/')
         print("当前页面标题:", self.driver.title)
-        
+
         # 会话状态检查
         if "login" not in self.driver.current_url:
             print("检测到有效会话，跳过登录...")
@@ -53,20 +53,28 @@ class DriverHolder:
             
             # 验证登录成功
             if "login" in self.driver.current_url:
-                raise Exception("登录状态未生效，请检查登录操作")
+                raise Exception("登录状态未生效，请检查登录操作") 
         
+        self.driver.get('https://www.goofish.com/im?spm=a21ybx.home.sidebar.1.4c053da6EEIHQx')  
         cookies = self.driver.get_cookies()
         cookie_str = "; ".join([f"{c['name']}={c['value']}" for c in cookies])
-        print(cookie_str)
         # 获取并保存新Cookie
-        cookies = self.driver.get_cookies()
         with open('xianyu_cookies.json', 'w') as f:
             json.dump(cookies, f, indent=2)
         with open('xianyu_cookies.txt', 'w') as f:
             f.write(cookie_str)
         print(f"成功保存{len(cookies)}个Cookie")
         
-        return cookie_str 
+        return cookie_str
+
+    def update_cookie(self): 
+        # self.driver.get('https://www.goofish.com/im?spm=a21ybx.home.sidebar.1.4c053da6EEIHQx') 
+        self.driver.refresh()
+        self.driver.implicitly_wait(5)
+        cookies = self.driver.get_cookies()
+        cookie_str = "; ".join([f"{c['name']}={c['value']}" for c in cookies])
+        return cookie_str
+
         
     def close(self):
         self.driver.quit()

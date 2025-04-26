@@ -17,7 +17,8 @@ from context_manager import ChatContextManager
 
 
 class XianyuLive:
-    def __init__(self, cookies_str):
+    def __init__(self, driver):
+        cookies_str = driver.get_xianyu_cookie() 
         self.xianyu = XianyuApis()
         self.base_url = 'wss://wss-goofish.dingtalk.com/'
         self.cookies_str = cookies_str
@@ -104,6 +105,29 @@ class XianyuLive:
              "pts": int(time.time() * 1000) * 1000, "seq": 0, "timestamp": int(time.time() * 1000)}]}
         await ws.send(json.dumps(msg))
         logger.info('连接注册完成')
+    
+    async def update_cookie(self): 
+        logger.info('更新cookie ... ') 
+        cookies_str = self.driver.update_cookie() 
+        self.cookies_str = cookies_str
+        self.cookies = trans_cookies(cookies_str)
+        self.myid = self.cookies['unb']
+        self.device_id = generate_device_id(self.myid) 
+        logger.info('更新完毕') 
+
+    async def check_cookie_valid(self):
+        """检查Cookie是否有效"""
+        try:
+            # 尝试获取token，如果失败则说明Cookie已过期
+            token_response = self.xianyu.get_token(self.cookies, self.device_id)
+            if token_response.get('ret') and token_response['ret'][0] != "SUCCESS::调用成功":
+                logger.error(f"Cookie已过期: {token_response}")
+                self.update_cookie()
+                return False
+            return True
+        except Exception as e:
+            logger.error(f"检查Cookie时出错: {e}")
+            return False
 
     def is_chat_message(self, message):
         """判断是否为用户聊天消息"""
@@ -151,7 +175,6 @@ class XianyuLive:
     async def handle_message(self, message_data, websocket):
         """处理所有类型的消息"""
         try:
-
             try:
                 message = message_data
                 ack = {
@@ -252,6 +275,7 @@ class XianyuLive:
                 return
                 
             item_info = self.xianyu.get_item_info(self.cookies, item_id)['data']['itemDO']
+            print(item_info)
             item_description = f"{item_info['desc']};当前商品售卖价格为:{str(item_info['soldPrice'])}"
             
             logger.info(f"user: {send_user_name}, 发送消息: {send_message}")
@@ -343,6 +367,11 @@ class XianyuLive:
 
     async def main(self):
         while True:
+            if not self.check_cookie_valid(): 
+                # 更新cookie  
+                self.update_cookie() 
+                await asyncio.sleep(15)  
+
             try:
                 headers = {
                     "Cookie": self.cookies_str,
@@ -423,8 +452,7 @@ class XianyuLive:
 if __name__ == '__main__':
     #加载环境变量 cookie
     load_dotenv()
-    cookies_str = driver.get_xianyu_cookie()
     bot = XianyuReplyBot()
-    xianyuLive = XianyuLive(cookies_str)
+    xianyuLive = XianyuLive(driver)
     # 常驻进程
     asyncio.run(xianyuLive.main())
