@@ -34,7 +34,7 @@ class XianyuLive:
         self.last_heartbeat_time = 0
         self.last_heartbeat_response = 0
         self.heartbeat_task = None
-        self.ws = None
+        self.ws = None 
 
     async def send_msg(self, ws, cid, toid, text):
         text = {
@@ -80,52 +80,71 @@ class XianyuLive:
                 }
             ]
         }
-
         await ws.send(json.dumps(msg)) 
+    
+    async def send_info(self, ws, message): 
+        send_user_name = message["1"]["10"]["reminderTitle"]
+        send_user_id = message["1"]["10"]["senderUserId"] 
+        cid = message["1"]["2"].split('@')[0]
+        toid = send_user_id 
+        print("发货", cid, toid)
 
-        # text = {
-        #     "contentType": 2,
-        #     "image":{"pics":[{"height":804,"type":0,"url":"https://img.alicdn.com/imgextra/i2/1574452518/O1CN0147UFuH1UTILK9CUa8_!!1574452518-0-xy_chat.jpg","width":1080}]} 
-        # }
-        # text_base64 = str(base64.b64encode(json.dumps(text).encode('utf-8')), 'utf-8')
-        # msg = {
-        #     "lwp": "/r/MessageSend/sendByReceiverScope",
-        #     "headers": {
-        #         "mid": generate_mid()
-        #     },
-        #     "body": [
-        #         {
-        #             "uuid": generate_uuid(),
-        #             "cid": f"{cid}@goofish",
-        #             "conversationType": 1,
-        #             "content": {
-        #                 "contentType": 101,
-        #                 "custom": {
-        #                     "type": 1,
-        #                     "data": text_base64
-        #                 }
-        #             },
-        #             "redPointPolicy": 0,
-        #             "extension": {
-        #                 "extJson": "{}"
-        #             },
-        #             "ctx": {
-        #                 "appVersion": "1.0",
-        #                 "platform": "web"
-        #             },
-        #             "mtags": {},
-        #             "msgReadStatusSetting": 1
-        #         },
-        #         {
-        #             "actualReceivers": [
-        #                 f"{toid}@goofish",
-        #                 f"{self.myid}@goofish"
-        #             ]
-        #         }
-        #     ]
-        # }
-        # print(msg)
-        # await ws.send(json.dumps(msg)) 
+
+        info0  = """账号昵称：\t 会员名：\t （会员名在设置里-账号与安全里的第一行）""" 
+        info1  = """ 先把这些发我一下""" 
+        await self.send_msg(ws, cid, send_user_id, info0)
+        await asyncio.sleep(1)
+        await self.send_msg(ws, cid, send_user_id, info1)
+        await asyncio.sleep(30)
+        logger.info("准备发送图片") 
+        text = {
+            "contentType": 2,
+            "image":{"pics":[{"height":804,"type":0,"url":"https://img.alicdn.com/imgextra/i2/1574452518/O1CN0147UFuH1UTILK9CUa8_!!1574452518-0-xy_chat.jpg","width":1080}]} 
+        }
+        text_base64 = str(base64.b64encode(json.dumps(text).encode('utf-8')), 'utf-8')
+        msg = {
+            "lwp": "/r/MessageSend/sendByReceiverScope",
+            "headers": {
+                "mid": generate_mid()
+            },
+            "body": [
+                {
+                    "uuid": generate_uuid(),
+                    "cid": f"{cid}@goofish",
+                    "conversationType": 1,
+                    "content": {
+                        "contentType": 101,
+                        "custom": {
+                            "type": 1,
+                            "data": text_base64
+                        }
+                    },
+                    "redPointPolicy": 0,
+                    "extension": {
+                        "extJson": "{}"
+                    },
+                    "ctx": {
+                        "appVersion": "1.0",
+                        "platform": "web"
+                    },
+                    "mtags": {},
+                    "msgReadStatusSetting": 1
+                },
+                {
+                    "actualReceivers": [
+                        f"{toid}@goofish",
+                        f"{self.myid}@goofish"
+                    ]
+                }
+            ]
+        }
+        await ws.send(json.dumps(msg)) 
+        info2  = """丰田凯美瑞  二手汽车  自动档 空间大 省油 私家轿车  越野车 SUV MPV \t 关于车况：车况精品 经过第三方权威检测，三包，保证无事故 无泡水 让您买的放心! 低首付提爱车！不需要任何资质，不好也可以，有两证就能做下来，做有车一族，为您遮风挡雨，车就是您移动的家!""" 
+        info3 = """ 标价 99，别的随便填，你先发布一下这个闲置 """
+        await self.send_msg(ws, cid, send_user_id, info2)
+        await asyncio.sleep(2)
+        await self.send_msg(ws, cid, send_user_id, info3)
+        
 
     async def init(self, ws):
         token = self.xianyu.get_token(self.cookies, self.device_id)['data']['accessToken']
@@ -283,7 +302,7 @@ class XianyuLive:
                 elif message['3']['redReminder'] == '等待卖家发货':
                     user_id = message['1'].split('@')[0]
                     user_url = f'https://www.goofish.com/personal?userId={user_id}'
-                    logger.info(f'交易成功 {user_url} 等待卖家发货')
+                    logger.info(f'交易成功 {user_url} 等待卖家发货') 
                     return
 
             except:
@@ -302,7 +321,7 @@ class XianyuLive:
             create_time = int(message["1"]["5"])
             send_user_name = message["1"]["10"]["reminderTitle"]
             send_user_id = message["1"]["10"]["senderUserId"]
-            send_message = message["1"]["10"]["reminderContent"]
+            send_message = message["1"]["10"]["reminderContent"] 
             
             # 时效性验证（过滤5分钟前消息）
             if (time.time() * 1000 - create_time) > 300000:
@@ -326,6 +345,11 @@ class XianyuLive:
             item_description = f"{item_info['desc']};当前商品售卖价格为:{str(item_info['soldPrice'])};当前时间为 {cur_time}" 
             
             logger.info(f"user: {send_user_name}, 发送消息: {send_message}")
+            
+            if send_user_name.count('等待你发货') and send_message.count('我已付款，等待你发货]'): 
+                # 获取卡片信息 
+                await self.send_info(websocket, message) 
+                return 
             
             # 添加用户消息到上下文
             self.context_manager.add_message(send_user_id, item_id, "user", send_message)

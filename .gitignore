@@ -2,7 +2,7 @@
 # .env
 edge_profile/
 # 提示词文件
-*_prompt.txt
+# *_prompt.txt
 # Python缓存文件
 __pycache__/
 *.py[cod]

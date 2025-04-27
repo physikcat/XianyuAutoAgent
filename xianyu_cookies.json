@@ -1,12 +1,13 @@
 [
   {
     "domain": ".goofish.com",
+    "expiry": 1777333081,
     "httpOnly": true,
-    "name": "cookie2",
+    "name": "sgcookie",
     "path": "/",
     "sameSite": "None",
     "secure": true,
-    "value": "1cb423b361e99afeb5057743348ad6f1"
+    "value": "E100zWW2%2BjLkeUvInTMHYHZ0XbtCyQDcCS%2FcPEZndHLKH5H3j6AD6o7rWrEq9MlVZfqzXNSABhoMVA5n8x9Majcm%2BB5XvjR07kV8vm1lxflq50o%3D"
   },
   {
     "domain": ".goofish.com",
@@ -15,7 +16,7 @@
     "path": "/",
     "sameSite": "None",
     "secure": true,
-    "value": "1745688426316"
+    "value": "1745852544950"
   },
   {
     "domain": ".goofish.com",
@@ -28,12 +29,32 @@
   },
   {
     "domain": ".goofish.com",
+    "expiry": 1761320290,
+    "httpOnly": false,
+    "name": "tfstk",
+    "path": "/",
+    "sameSite": "Lax",
+    "secure": false,
+    "value": "ggKBrJ2aXWVBD_PMKXHNhkPQTQsSgQi4P86JnLEUeMILw7pA_B5FYYm5wBfwY6JFv0t5xh8U46lhVLdVVjlq0mJHKGj-gjWuzu412TnPwV7dK5ZdJjlq0cJHKgj-gQJ5xaOFE1BdpTUKCGBh6TCJw6QT6t6c2_dJwdH1E1CR2gdRXjla1TPCQpMnnUTe-Mfvp1Z8V-XCJsnc1uEJf9NVMp_02uK1dwK9I2YJlw8JnZxeF0ZGYKTOXtJnAlsvptOF_InYfGpwBQ7DSbqVSCt5oHQ3eyp6V6_vvNwzmdsFeQQWSjZVdM81lHTnE5ppg6TAxLyjTd_X5ZXOW8adYEJ2qZKKASfNoTOF_InYfGQR4cqVGmHTPR_0VO1qCAaurAxSttI8-V4NJOXK0AM__3bdIOTtCAauqwBGppMsCWsF."
+  },
+  {
+    "domain": ".goofish.com",
+    "expiry": 1745771545,
+    "httpOnly": false,
+    "name": "mtop_partitioned_detect",
+    "path": "/",
+    "sameSite": "None",
+    "secure": true,
+    "value": "1"
+  },
+  {
+    "domain": ".goofish.com",
     "httpOnly": false,
     "name": "csg",
     "path": "/",
     "sameSite": "None",
     "secure": true,
-    "value": "e8d808bf"
+    "value": "6124ebe2"
   },
   {
     "domain": ".goofish.com",
@@ -46,43 +67,13 @@
   },
   {
     "domain": ".goofish.com",
-    "expiry": 1745688194,
+    "expiry": 1745771545,
     "httpOnly": false,
     "name": "_m_h5_tk_enc",
     "path": "/",
     "sameSite": "None",
     "secure": true,
-    "value": "2306a7e88c244cfd47fa1e40034b3b03"
-  },
-  {
-    "domain": ".goofish.com",
-    "expiry": 1761235397,
-    "httpOnly": false,
-    "name": "tfstk",
-    "path": "/",
-    "sameSite": "Lax",
-    "secure": false,
-    "value": "gYGxt56uV3x0_uPHiI9lIR6pPo8ktf3VomuCslqcC0n-R2S0CjVmXOnm7c260Sct2Slon1qD053sx5KHxBAnuqPz1HxhXm0An5a6sl9uhu6JDwtHxBAouqPa1Hmik3fewPr7lra11UC75yV1G5i_V8aQ-iN_1cT8VPUNlGZbc7_77uZ_15isPUUig-TY4IaF6vzP4HnqOuC11bUXbkgY2zzrwreYA8ZR1Zh8k-EIkXCEWTUSZbe3ENxuN2koczFpZtNIyAiKdcJhUS3shcy-03W8qYGq5lwl5608BoHSG8Q114P7DJktDnB4cxm8Lzw5WBzoxugqGYLNVqi3DSa7EBTKPRMogJlDVsFILqVmCcJhUS3sh7Iy4XcpnKS3vPXXyUBNQ-aynxZ4k847A148xEwfQOyKazEHy6WNQ-1zykYfYOWaEpf.."
-  },
-  {
-    "domain": ".goofish.com",
-    "expiry": 1745688194,
-    "httpOnly": false,
-    "name": "mtop_partitioned_detect",
-    "path": "/",
-    "sameSite": "None",
-    "secure": true,
-    "value": "1"
-  },
-  {
-    "domain": ".goofish.com",
-    "expiry": 1777166834,
-    "httpOnly": true,
-    "name": "sgcookie",
-    "path": "/",
-    "sameSite": "None",
-    "secure": true,
-    "value": "E100QaAYSj6LXOQIBONaSmjSzUJcm7ROqwE6%2B5mDVmAZtEUR559nDXArKxBMHu7AB7mCx8zGE9NTnRZgkgrrB29PqtunjaEAXHPwcKaIUR5%2BmNM%3D"
+    "value": "6ee0855a0bf45392f76c3d7b7cf0f0fc"
   },
   {
     "domain": ".goofish.com",
@@ -106,6 +97,15 @@
   },
   {
     "domain": ".goofish.com",
+    "httpOnly": true,
+    "name": "cookie2",
+    "path": "/",
+    "sameSite": "Lax",
+    "secure": false,
+    "value": "18bad060009ef6cd1a4c001802c75d02"
+  },
+  {
+    "domain": ".goofish.com",
     "expiry": 1747956782,
     "httpOnly": true,
     "name": "_hvn_lgc_",
@@ -126,7 +126,7 @@
   },
   {
     "domain": ".goofish.com",
-    "expiry": 1745890034,
+    "expiry": 1746056281,
     "httpOnly": false,
     "name": "unb",
     "path": "/",
@@ -136,7 +136,7 @@
   },
   {
     "domain": ".goofish.com",
-    "expiry": 1777166834,
+    "expiry": 1777333081,
     "httpOnly": false,
     "name": "tracknick",
     "path": "/",
@@ -146,13 +146,13 @@
   },
   {
     "domain": ".goofish.com",
-    "expiry": 1745688194,
+    "expiry": 1745771545,
     "httpOnly": false,
     "name": "_m_h5_tk",
     "path": "/",
     "sameSite": "None",
     "secure": true,
-    "value": "6021d8caa8567ad80cbb86d579673dd3_1745691794695"
+    "value": "139844c6aefdc5d77a052d7d33200a9c_1745774782774"
   },
   {
     "domain": ".goofish.com",
