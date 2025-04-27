@@ -355,6 +355,8 @@ class XianyuLive:
             
         except Exception as e:
             logger.error(f"处理消息时发生错误: {str(e)}")
+            logger.info(f"尝试更新cookie") 
+            await self.update_cookie()
             logger.debug(f"原始消息: {message_data}")
 
     async def send_heartbeat(self, ws):
@@ -472,7 +474,9 @@ class XianyuLive:
                         except json.JSONDecodeError:
                             logger.error("消息解析失败")
                         except Exception as e:
-                            logger.error(f"处理消息时发生错误: {str(e)}")
+                            logger.error(f"解析消息时发生错误: {str(e)}")
+                            logger.info(f"尝试更新cookie") 
+                            await self.update_cookie()
                             logger.debug(f"原始消息: {message}")
 
             except websockets.exceptions.ConnectionClosed:
