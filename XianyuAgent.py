@@ -25,6 +25,7 @@ class XianyuReplyBot:
             'price': PriceAgent(self.client, self.price_prompt, self._safe_filter),
             'tech': TechAgent(self.client, self.tech_prompt, self._safe_filter),
             'default': DefaultAgent(self.client, self.default_prompt, self._safe_filter),
+            'after': DefaultAgent(self.client, self.after_prompt, self._safe_filter),
         }
 
     def _init_system_prompts(self):
@@ -50,7 +51,12 @@ class XianyuReplyBot:
             # 加载默认提示词
             with open(os.path.join(prompt_dir, "default_prompt.txt"), "r", encoding="utf-8") as f:
                 self.default_prompt = f.read()
-                logger.debug(f"已加载默认提示词，长度: {len(self.default_prompt)} 字符")
+                logger.debug(f"已加载默认提示词，长度: {len(self.default_prompt)} 字符") 
+            
+            # 加载售后提示词
+            with open(os.path.join(prompt_dir, "after_prompt.txt"), "r", encoding="utf-8") as f:
+                self.after_prompt = f.read()
+                logger.debug(f"已加载售后提示词，长度: {len(self.default_prompt)} 字符")
                 
             logger.info("成功加载所有提示词")
         except Exception as e:
@@ -82,7 +88,6 @@ class XianyuReplyBot:
 
 
         # 2. 获取对应Agent
-
         internal_intents = {'classify'}  # 定义不对外开放的Agent
 
         if detected_intent in self.agents and detected_intent not in internal_intents:
@@ -142,7 +147,7 @@ class IntentRouter:
     def __init__(self, classify_agent):
         self.rules = {
             'tech': {  # 技术类优先判定
-                'keywords': ['参数', '规格', '型号', '连接', '对比'],
+                'keywords': ['参数', '规格', '型号', '连接', '对比', '多久', '时间'],
                 'patterns': [
                     r'和.+比'             
                 ]
@@ -150,6 +155,10 @@ class IntentRouter:
             'price': {
                 'keywords': ['便宜', '价', '砍价', '少点'],
                 'patterns': [r'\d+元', r'能少\d+']
+            },
+            'after': {
+                'keywords': ['退款', '退了'],
+                'patterns': [r'退\d+']
             }
         }
         self.classify_agent = classify_agent
@@ -157,7 +166,11 @@ class IntentRouter:
     def detect(self, user_msg: str, item_desc, context) -> str:
         """三级路由策略（技术优先）"""
         text_clean = re.sub(r'[^\w\u4e00-\u9fa5]', '', user_msg)
-        
+
+        # 0. 检查是否是售后用户
+        if any(kw in text_clean for kw in self.rules['after']['keywords']):
+            return 'after' 
+         
         # 1. 技术类关键词优先检查
         if any(kw in text_clean for kw in self.rules['tech']['keywords']):
             # logger.debug(f"技术类关键词匹配: {[kw for kw in self.rules['tech']['keywords'] if kw in text_clean]}")

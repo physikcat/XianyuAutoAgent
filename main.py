@@ -34,7 +34,10 @@ class XianyuLive:
         self.last_heartbeat_time = 0
         self.last_heartbeat_response = 0
         self.heartbeat_task = None
+        self.update_task = None  # 定时任务句柄
         self.ws = None 
+        self.ignore_user_ids = [] # 忽略名单 
+        self.black_user_ids = [] # 黑名单 
 
     async def send_msg(self, ws, cid, toid, text):
         text = {
@@ -171,14 +174,24 @@ class XianyuLive:
         await ws.send(json.dumps(msg))
         logger.info('连接注册完成')
     
-    async def update_cookie(self): 
-        logger.info('更新cookie ... ') 
-        cookies_str = await self.driver.update_cookie() 
-        self.cookies_str = cookies_str
-        self.cookies = trans_cookies(cookies_str)
-        self.myid = self.cookies['unb']
-        self.device_id = generate_device_id(self.myid) 
-        logger.info('更新完毕') 
+    async def update_cookie(self):
+        try: 
+            logger.info('更新cookie ... ') 
+            cookies_str = await self.driver.update_cookie() 
+            self.cookies_str = cookies_str
+            self.cookies = trans_cookies(cookies_str)
+            self.myid = self.cookies['unb']
+            self.device_id = generate_device_id(self.myid) 
+            logger.info('更新完毕') 
+        except Exception as e:
+            logger.error(f"更新Cookie失败: {e}")
+    
+    async def run_periodic_update(self):
+        """定时更新 Cookie 的后台任务"""
+        while True:
+            await asyncio.sleep(3600)  # 1小时 = 3600秒
+            logger.info("定时任务：更新 Cookie...")
+            await self.update_cookie()
 
     async def check_cookie_valid(self):
         """检查Cookie是否有效"""
@@ -197,14 +210,20 @@ class XianyuLive:
     def is_chat_message(self, message):
         """判断是否为用户聊天消息"""
         try:
-            return (
+            if (
                 isinstance(message, dict) 
                 and "1" in message 
                 and isinstance(message["1"], dict)  # 确保是字典类型
                 and "10" in message["1"]
                 and isinstance(message["1"]["10"], dict)  # 确保是字典类型
                 and "reminderContent" in message["1"]["10"]
-            )
+            ): 
+                send_message = message["1"]["10"]["reminderContent"] 
+                if send_message.count('发来一条新消息'): 
+                    return False
+                else: 
+                    return True  
+                
         except Exception:
             return False
 
@@ -321,7 +340,10 @@ class XianyuLive:
             create_time = int(message["1"]["5"])
             send_user_name = message["1"]["10"]["reminderTitle"]
             send_user_id = message["1"]["10"]["senderUserId"]
-            send_message = message["1"]["10"]["reminderContent"] 
+            send_message = message["1"]["10"]["reminderContent"]  
+            receiver_user_id = message["1"]["2"].split('@')[0] 
+            message_baseinfo = message["1"]["6"]["3"]["5"] 
+            print(message) 
             
             # 时效性验证（过滤5分钟前消息）
             if (time.time() * 1000 - create_time) > 300000:
@@ -329,9 +351,39 @@ class XianyuLive:
                 return
                 
             if send_user_id == self.myid:
-                logger.debug("过滤自身消息")
+                logger.debug("过滤自身消息") 
+
+                # 插入暗号 
+                if send_message == "[送花][送花][送花][送花]": 
+                    # 关闭此用户Ai 回复 
+                    self.ignore_user_ids += [receiver_user_id] 
+                elif send_message == "[比心][比心][比心][比心]": 
+                    # 打开此用户 
+                    try: 
+                        self.ignore_user_ids.remove(receiver_user_id) 
+                    except: 
+                        pass 
+                elif send_message == "[微笑][微笑][微笑][微笑]": 
+                    # 拉黑用户
+                    self.black_user_ids += [receiver_user_id]
+
+                print('myid = ', self.myid) 
+                print(send_user_name) 
                 return
-                
+            
+            if message_baseinfo['contentType'] > 2: 
+                logger.debug("卡片信息") 
+                if send_message.count('[我已付款，等待你发货]'): 
+                    await self.send_info(websocket, message) 
+                return
+
+            if send_message.count('[卡片消息]') or send_message.count('[我已拍下，待付款]'): 
+                return  
+            
+            if send_user_id in self.ignore_user_ids: 
+                logger.info("AI忽略此用户消息") 
+                return 
+
             url_info = message["1"]["10"]["reminderUrl"]
             item_id = url_info.split("itemId=")[1].split("&")[0] if "itemId=" in url_info else None
             
@@ -345,11 +397,6 @@ class XianyuLive:
             item_description = f"{item_info['desc']};当前商品售卖价格为:{str(item_info['soldPrice'])};当前时间为 {cur_time}" 
             
             logger.info(f"user: {send_user_name}, 发送消息: {send_message}")
-            
-            if send_user_name.count('等待你发货') and send_message.count('我已付款，等待你发货]'): 
-                # 获取卡片信息 
-                await self.send_info(websocket, message) 
-                return 
             
             # 添加用户消息到上下文
             self.context_manager.add_message(send_user_id, item_id, "user", send_message)
@@ -439,6 +486,9 @@ class XianyuLive:
         return False
 
     async def main(self):
+        if not self.update_task:
+            self.update_task = asyncio.create_task(self.run_periodic_update())
+    
         while True:
             is_valid = await self.check_cookie_valid()  
             if not is_valid: 
