@@ -341,10 +341,10 @@ class XianyuLive:
             send_user_name = message["1"]["10"]["reminderTitle"]
             send_user_id = message["1"]["10"]["senderUserId"]
             send_message = message["1"]["10"]["reminderContent"]  
-            receiver_user_id = message["1"]["2"].split('@')[0] 
+            talk_id = message["1"]["2"].split('@')[0] 
             message_baseinfo = json.loads(message["1"]["6"]["3"]["5"])
             print(message) 
-             
+
             # 时效性验证（过滤5分钟前消息）
             if (time.time() * 1000 - create_time) > 300000:
                 logger.debug("过期消息丢弃")
@@ -356,16 +356,19 @@ class XianyuLive:
                 # 插入暗号 
                 if send_message == "[送花][送花][送花][送花]": 
                     # 关闭此用户Ai 回复 
-                    self.ignore_user_ids += [receiver_user_id] 
+                    logger.debug(f"{talk_id} 加入到忽略名单") 
+                    self.ignore_user_ids += [talk_id] 
+                    print(self.ignore_user_ids)
+
                 elif send_message == "[比心][比心][比心][比心]": 
                     # 打开此用户 
                     try: 
-                        self.ignore_user_ids.remove(receiver_user_id) 
+                        self.ignore_user_ids.remove(talk_id) 
                     except: 
                         pass 
                 elif send_message == "[微笑][微笑][微笑][微笑]": 
                     # 拉黑用户
-                    self.black_user_ids += [receiver_user_id]
+                    self.black_user_ids += [talk_id]
 
                 return
             
@@ -378,12 +381,12 @@ class XianyuLive:
             if send_message.count('[卡片消息]') or send_message.count('[我已拍下，待付款]'): 
                 return  
             
-            if send_user_id in self.ignore_user_ids: 
+            if talk_id in self.ignore_user_ids: 
                 logger.info("AI忽略此用户消息") 
                 return
-            elif send_user_id in self.black_user_ids:
+            elif talk_id in self.black_user_ids:
                 logger.info("黑名单用户重点关心")
-                send_message += f'退款用户：{send_message}' 
+                send_message = f'退款用户：{send_message}' 
 
             url_info = message["1"]["10"]["reminderUrl"]
             item_id = url_info.split("itemId=")[1].split("&")[0] if "itemId=" in url_info else None
@@ -542,7 +545,6 @@ class XianyuLive:
                                     if key in message_data["headers"]:
                                         ack["headers"][key] = message_data["headers"][key]
                                 await websocket.send(json.dumps(ack))
-                            
                             # 处理其他消息
                             await self.handle_message(message_data, websocket)
                                 
