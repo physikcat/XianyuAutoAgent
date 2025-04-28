@@ -177,7 +177,7 @@ class XianyuLive:
     async def update_cookie(self):
         try: 
             logger.info('更新cookie ... ') 
-            cookies_str = await self.driver.update_cookie() 
+            cookies_str = self.driver.update_cookie() 
             self.cookies_str = cookies_str
             self.cookies = trans_cookies(cookies_str)
             self.myid = self.cookies['unb']
@@ -342,14 +342,14 @@ class XianyuLive:
             send_user_id = message["1"]["10"]["senderUserId"]
             send_message = message["1"]["10"]["reminderContent"]  
             receiver_user_id = message["1"]["2"].split('@')[0] 
-            message_baseinfo = message["1"]["6"]["3"]["5"] 
+            message_baseinfo = json.loads(message["1"]["6"]["3"]["5"])
             print(message) 
-            
+             
             # 时效性验证（过滤5分钟前消息）
             if (time.time() * 1000 - create_time) > 300000:
                 logger.debug("过期消息丢弃")
                 return
-                
+
             if send_user_id == self.myid:
                 logger.debug("过滤自身消息") 
 
@@ -367,8 +367,6 @@ class XianyuLive:
                     # 拉黑用户
                     self.black_user_ids += [receiver_user_id]
 
-                print('myid = ', self.myid) 
-                print(send_user_name) 
                 return
             
             if message_baseinfo['contentType'] > 2: 
@@ -382,7 +380,10 @@ class XianyuLive:
             
             if send_user_id in self.ignore_user_ids: 
                 logger.info("AI忽略此用户消息") 
-                return 
+                return
+            elif send_user_id in self.black_user_ids:
+                logger.info("黑名单用户重点关心")
+                send_message += f'退款用户：{send_message}' 
 
             url_info = message["1"]["10"]["reminderUrl"]
             item_id = url_info.split("itemId=")[1].split("&")[0] if "itemId=" in url_info else None

@@ -84,7 +84,7 @@ class XianyuReplyBot:
         
         # 1. 路由决策
         detected_intent = self.router.detect(user_msg, item_desc, formatted_context)
-
+        user_msg = user_msg.lstrip('退款用户：')
 
 
         # 2. 获取对应Agent
